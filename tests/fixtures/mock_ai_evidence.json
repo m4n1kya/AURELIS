@@ -1,0 +1,93 @@
+{
+    "images": {
+        "image_01": {
+            "amount": 1128600.0,
+            "currency": "IDR",
+            "confidence": 0.99
+        },
+        "image_02": {
+            "amount": 42039.2,
+            "currency": "EUR",
+            "confidence": 0.99
+        },
+        "image_03": {
+            "amount": 21650.9,
+            "currency": "JPY",
+            "confidence": 0.99
+        },
+        "image_04": {
+            "amount": 7516.18,
+            "currency": "CHF",
+            "confidence": 0.99
+        },
+        "image_05": {
+            "amount": 10180.96,
+            "currency": "PLN",
+            "confidence": 0.99
+        }
+    },
+    "messages": {
+        "message_01": {
+            "action": "amend_amount",
+            "new_amount": 42750000.0,
+            "new_date": "2025-08-15"
+        },
+        "message_02": {
+            "action": "confirm"
+        },
+        "message_03": {
+            "action": "pending"
+        },
+        "message_04": {
+            "action": "amend_amount",
+            "new_amount": 1037.52
+        },
+        "message_05": {
+            "action": "amend_date",
+            "new_date": "2024-09-23"
+        },
+        "message_06": {
+            "action": "amend_amount",
+            "new_amount": 1422.85
+        },
+        "message_07": {
+            "action": "pending"
+        },
+        "message_08": {
+            "action": "amend_amount",
+            "new_amount": 38760000.0
+        },
+        "message_09": {
+            "action": "cancel"
+        },
+        "message_10": {
+            "action": "amend_amount",
+            "new_amount": 2717.0,
+            "new_date": "2025-08-15"
+        },
+        "message_11": {
+            "action": "amend_amount",
+            "new_amount": 1661.0,
+            "new_date": "2026-01-15"
+        },
+        "message_12": {
+            "action": "increase_by_percent",
+            "new_amount": 0.12
+        },
+        "message_13": {
+            "action": "ignore"
+        },
+        "message_14": {
+            "action": "pending"
+        },
+        "message_15": {
+            "action": "ignore"
+        },
+        "message_16": {
+            "action": "pending"
+        },
+        "message_17": {
+            "action": "cancel_recurring"
+        }
+    }
+}
