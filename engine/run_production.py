@@ -1,2 +1,56 @@
-"import pandas as pd\nfrom datetime import datetime\nimport json\nimport os\nimport time\n\nfrom dotenv import load_dotenv\nload_dotenv('../.env')\n\nfrom finance import Event, FinancialState\nfrom exchange_rates import ExchangeRateManager\nfrom evaluator import Evaluator\nfrom data_processor import DataProcessor\nfrom llm_client import LLMClient\n\ndef run_full():\n    data_dir = '../dataset'\n    \n    events_df = pd.read_csv(data_dir + '/financial_events.csv')\n    profiles_df = pd.read_csv(data_dir + '/financial_profiles.csv')\n    requests_df = pd.read_csv(data_dir + '/requests.csv')\n    messages_df = pd.read_csv(data_dir + '/messages.csv')\n    payment_options_df = pd.read_csv(data_dir + '/request_payment_options.csv')\n    exchange_rates_df = pd.read_csv(data_dir + '/exchange_rates.csv')\n    \n    exchange_mgr = ExchangeRateManager(exchange_rates_df)\n    llm = LLMClient()\n    processor = DataProcessor(llm, data_dir)\n    \n    output_rows = []\n    \n    start_time = time.time()\n    \n    for i, req_row in requests_df.iterrows():\n        req_id = req_row['request_id']\n        user_id = req_row['user_id']\n        req_date = datetime.strptime(req_row['request_date'], '%Y-%m-%d').date()\n        req_amt = float(req_row['requested_amount'])\n        \n        prof_row = profiles_df[profiles_df['user_id'] == user_id].iloc[0]\n        user_events = events_df[events_df['user_id'] == user_id]\n        \n        events = []\n        for _, r in user_events.iterrows():\n            ev = Event(r, exchange_mgr, prof_row['home_currency'])\n            if ev.amount is None:\n                # Need OCR\n                img_df = pd.read_csv(data_dir + '/images.csv')\n                img_row = img_df[img_df['related_event_id'] == ev.id]\n                if not img_row.empty:\n                    img_id = img_row.iloc[0]['image_id']\n                    try:\n                        amt = processor.extract_image_amount(img_id, diagnostic_mode=False)\n                        if amt is not None:\n                     
+import pandas as pd
+from datetime import datetime
+import json
+import os
+import time
+
+from dotenv import load_dotenv
+load_dotenv('../.env')
+
+from finance import Event, FinancialState
+from exchange_rates import ExchangeRateManager
+from evaluator import Evaluator
+from data_processor import DataProcessor
+from llm_client import LLMClient
+
+def run_full():
+    data_dir = '../dataset'
+    
+    events_df = pd.read_csv(data_dir + '/financial_events.csv')
+    profiles_df = pd.read_csv(data_dir + '/financial_profiles.csv')
+    requests_df = pd.read_csv(data_dir + '/requests.csv')
+    messages_df = pd.read_csv(data_dir + '/messages.csv')
+    payment_options_df = pd.read_csv(data_dir + '/request_payment_options.csv')
+    exchange_rates_df = pd.read_csv(data_dir + '/exchange_rates.csv')
+    
+    exchange_mgr = ExchangeRateManager(exchange_rates_df)
+    llm = LLMClient()
+    processor = DataProcessor(llm, data_dir)
+    
+    output_rows = []
+    
+    start_time = time.time()
+    
+    for i, req_row in requests_df.iterrows():
+        req_id = req_row['request_id']
+        user_id = req_row['user_id']
+        req_date = datetime.strptime(req_row['request_date'], '%Y-%m-%d').date()
+        req_amt = float(req_row['requested_amount'])
+        
+        prof_row = profiles_df[profiles_df['user_id'] == user_id].iloc[0]
+        user_events = events_df[events_df['user_id'] == user_id]
+        
+        events = []
+        for _, r in user_events.iterrows():
+            ev = Event(r, exchange_mgr, prof_row['home_currency'])
+            if ev.amount is None:
+                # Need OCR
+                img_df = pd.read_csv(data_dir + '/images.csv')
+                img_row = img_df[img_df['related_event_id'] == ev.id]
+                if not img_row.empty:
+                    img_id = img_row.iloc[0]['image_id']
+                    try:
+                        amt = processor.extract_image_amount(img_id, diagnostic_mode=False)
+                        if amt is not None:
+                     
 <truncated 2778 bytes>

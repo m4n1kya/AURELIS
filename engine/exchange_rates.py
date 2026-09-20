@@ -21,7 +21,7 @@ class ExchangeRateManager:
         
         # If the problem statement implies direct lookup is guaranteed when needed, we return None if missing.
         # However, let's implement cross-rate lookup through USD or EUR if necessary, but the rules strictly say:
-        # \"use the row for its settlement date and the stated from_currency to to_currency direction.\"
+        # "use the row for its settlement date and the stated from_currency to to_currency direction."
         # This implies it should always exist directly in the file.
         return None
 
@@ -29,8 +29,8 @@ class ExchangeRateManager:
         rate = self.get_rate(rate_date, from_currency, to_currency)
         if rate is None:
             # According to rules, we must use the row for its settlement date and the stated direction.
-            # If not found directly, maybe we must look for inverse? The rules explicitly say \"and the stated from_currency to to_currency direction.\"
+            # If not found directly, maybe we must look for inverse? The rules explicitly say "and the stated from_currency to to_currency direction."
             # Which strictly means do NOT invert.
-            raise ValueError(f\"Exchange rate not found for {from_currency} -> {to_currency} on {rate_date}\")
+            raise ValueError(f"Exchange rate not found for {from_currency} -> {to_currency} on {rate_date}")
         return amount * rate
 

@@ -52,7 +52,10 @@ with open(transcript_path, 'r', encoding='utf-8') as f:
                             code_lines.append(l.split(": ", 1)[1])
                 
                 if file_path and code_lines:
-                    files_content[os.path.basename(file_path)] = "\n".join(code_lines)
+                    new_content = "\n".join(code_lines)
+                    basename = os.path.basename(file_path)
+                    if basename not in files_content or len(new_content) > len(files_content[basename]):
+                        files_content[basename] = new_content
 
 # Write out recovered files
 for basename, content in files_content.items():
