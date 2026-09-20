@@ -38,7 +38,7 @@ class AurelisService:
             })
         return res
 
-    def analyze(self, req_id: str):
+    def analyze(self, req_id: str) -> dict:
         """Analyze a specific financial request by ID."""
         req_rows = self.requests_df[self.requests_df['request_id'] == req_id]
         if req_rows.empty:
