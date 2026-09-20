@@ -1,6 +1,7 @@
 <div align="center">
   <h1>AURELIS</h1>
   <p><b>Privacy-First AI Financial Intelligence & Affordability Agent</b></p>
+  <p><img src="https://github.com/m4n1kya/AURELIS/actions/workflows/python-app.yml/badge.svg" alt="Python CI"> <img src="https://github.com/m4n1kya/AURELIS/actions/workflows/nextjs.yml/badge.svg" alt="Next.js CI"></p> Financial Intelligence & Affordability Agent</b></p>
   
   <p>
     <a href="https://github.com/m4n1kya/AURELIS/commits/main"><img src="https://img.shields.io/github/last-commit/m4n1kya/AURELIS?style=flat-square&color=4BB8FA" alt="Last Commit"></a>
