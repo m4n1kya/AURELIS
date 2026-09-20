@@ -1,0 +1,21 @@
+# Open Source Conversion Tasks
+
+- [x] Create implementation plan
+- [x] Get user approval
+- [x] Execute Directory Restructuring
+  - [x] Lift all contents from `hackerrank-orchestrate-september26` to `AURELIS` root.
+  - [x] Delete `hackerrank-orchestrate-september26` folder.
+  - [x] Rename `code/` to `engine/`.
+- [x] Execute Trace Scrubbing
+  - [x] Delete HackerRank files (`problem_statement.md`, `run_and_zip.ps1`, `output.csv`, `code.zip`, `transcript.txt`, `log.txt`, `AGENTS.md`, `CLAUDE.md`).
+  - [x] Remove `__pycache__` and existing `.git`.
+  - [x] Update `api/main.py` path imports to remove hackerrank names.
+- [x] Open Source Foundation
+  - [x] Create premium `README.md`.
+  - [x] Create `requirements.txt`.
+- [x] Git Initialization & Push
+  - [x] `git init` (with proper `.gitignore`)
+  - [x] `git add .`
+  - [x] `git commit`
+  - [x] `git remote add origin https://github.com/m4n1kya/AURELIS.git`
+  - [x] `git push -u origin main -f`
