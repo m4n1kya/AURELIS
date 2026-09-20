@@ -44,7 +44,7 @@ def list_requests() -> List[Dict[str, Any]]:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/analyze/{request_id}")
-def analyze_request(request_id: str) -> Dict[str, Any]:
+def analyze_request(request_id: str = __import__('fastapi').Path(..., title="The ID of the request to analyze")) -> Dict[str, Any]:
     """Runs the deterministic evaluator for a specific request and returns a structured payload."""
     try:
         return service.analyze(request_id)
