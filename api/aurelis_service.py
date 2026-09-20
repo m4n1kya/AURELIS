@@ -27,6 +27,7 @@ class AurelisService:
         self.processor = DataProcessor(self.llm, self.data_dir)
 
     def get_all_requests(self):
+        """Fetch all requests available in the dataset."""
         # Return a list of basic info for the sidebar
         res = []
         for _, row in self.requests_df.iterrows():
