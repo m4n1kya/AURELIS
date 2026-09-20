@@ -110,3 +110,7 @@ Navigate to `http://localhost:3000` to access your AURELIS command center.
 ## 🛡️ License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+---
+*Built with precision and robust engineering.*
