@@ -7,6 +7,10 @@ import time
 from dotenv import load_dotenv
 load_dotenv('../.env')
 
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'engine'))
+
 from finance import Event, FinancialState
 from exchange_rates import ExchangeRateManager
 from evaluator import Evaluator

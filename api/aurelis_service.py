@@ -95,7 +95,8 @@ class AurelisService:
         decision = evaluator.evaluate()
         
         # We also want to map the 90-day forecast to send to the frontend chart
-        timeline = state.build_forecast(evaluator.request_date)
+        req_date = datetime.strptime(evaluator.request['request_date'], "%Y-%m-%d").date()
+        timeline, rules = state.build_forecast_with_rules(req_date)
         forecast_data = []
         curr_bal = state.current_balance
         proj_low = float('inf')
@@ -116,7 +117,7 @@ class AurelisService:
         income_pts = []
         expense_pts = []
         for evt in state.events:
-            if evt.settlement_date >= evaluator.request_date and evt.settlement_date <= dates_list[-1]:
+            if evt.settlement_date >= req_date and evt.settlement_date <= dates_list[-1]:
                 if evt.status != 'cancelled' and evt.amount is not None:
                     amt = evt.get_home_amount()
                     idx = (evt.settlement_date - dates_list[0]).days
@@ -166,7 +167,7 @@ class AurelisService:
                 "currency": prof_row['home_currency'],
                 "requested_amount": float(req_row['requested_amount']),
                 "current_balance": state.current_balance,
-                "minimum_reserve": state.min_balance,
+                "minimum_reserve": float(state.profile.get('minimum_balance_to_keep', 0.0)),
                 "projected_low": proj_low,
                 "has_unresolved_evidence": any(e['status'] == 'unresolved' for e in evidence_log)
             },
