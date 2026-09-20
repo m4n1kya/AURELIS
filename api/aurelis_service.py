@@ -11,6 +11,7 @@ from data_processor import DataProcessor
 from llm_client import LLMClient
 
 class AurelisService:
+    """Core service orchestrating data retrieval and engine evaluation."""
     def __init__(self):
         self.data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dataset'))
         self.events_df = pd.read_csv(f'{self.data_dir}/financial_events.csv')
