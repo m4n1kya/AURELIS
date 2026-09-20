@@ -15,7 +15,7 @@ from api.aurelis_service import AurelisService
 
 app = FastAPI(title="AURELIS API Bridge")
 
-# Allow Next.js frontend to call the API locally
+# Configure CORS to allow the Next.js frontend to communicate securely with the API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
