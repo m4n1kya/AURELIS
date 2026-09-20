@@ -1,3 +1,8 @@
+from pydantic import BaseModel
+class HealthResponse(BaseModel):
+    status: str
+    engine: str
+
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -27,7 +32,7 @@ app.add_middleware(
 service = AurelisService()
 
 @app.get("/api/health")
-def health_check():
+def health_check() -> HealthResponse:
     return {"status": "ok", "engine": "deterministic"}
 
 @app.get("/api/requests")
