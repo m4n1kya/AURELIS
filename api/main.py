@@ -1,3 +1,6 @@
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
