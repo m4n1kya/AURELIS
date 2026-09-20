@@ -36,6 +36,8 @@ def health_check() -> HealthResponse:
     return {"status": "ok", "engine": "deterministic"}
 
 @app.get("/api/requests")
+
+# Endpoint definitions
 def list_requests() -> List[Dict[str, Any]]:
     """Returns a list of all request IDs and base metadata."""
     try:
