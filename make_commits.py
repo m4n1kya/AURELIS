@@ -7,8 +7,8 @@ def run_cmd(cmd):
 
 def git_commit(msg):
     run_cmd("git add .")
-    run_cmd(f'git commit -m "{msg}"')
-    time.sleep(1)
+    subprocess.run(f'git commit --allow-empty -m "{msg}"', shell=True)
+    time.sleep(0.5)
 
 def ensure_dir(path):
     os.makedirs(path, exist_ok=True)
