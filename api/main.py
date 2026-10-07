@@ -1,3 +1,13 @@
+"""
+AURELIS API Bridge
+==================
+
+This module provides the FastAPI application that serves as the bridge between the 
+Next.js frontend and the core deterministic AURELIS engine. It exposes endpoints 
+for health checks, listing requests, and running deep financial analysis on a 
+specific request.
+"""
+
 from pydantic import BaseModel
 class HealthResponse(BaseModel):
     status: str
