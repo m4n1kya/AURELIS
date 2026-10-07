@@ -8,28 +8,27 @@ for health checks, listing requests, and running deep financial analysis on a
 specific request.
 """
 
-from pydantic import BaseModel
-class HealthResponse(BaseModel):
-    status: str
-    engine: str
-
-import logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Dict, Any
-
 import sys
 import os
+import time
+import logging
+from typing import List, Dict, Any
+
+from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 # Ensure the 'engine' directory is on the path so we can import the core logic
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'engine'))
 
 from api.aurelis_service import AurelisService
 
-import time
-from fastapi import FastAPI, HTTPException, Request
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class HealthResponse(BaseModel):
+    status: str
+    engine: str
 
 app = FastAPI(title="AURELIS API Bridge")
 
