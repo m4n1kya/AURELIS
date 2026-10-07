@@ -28,7 +28,19 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'engine'))
 
 from api.aurelis_service import AurelisService
 
+import time
+from fastapi import FastAPI, HTTPException, Request
+
 app = FastAPI(title="AURELIS API Bridge")
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    logger.info(f"Path: {request.url.path} completed in {process_time:.4f}s")
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
 
 # Configure CORS to allow the Next.js frontend to communicate securely with the API
 app.add_middleware(
