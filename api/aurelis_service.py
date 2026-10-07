@@ -26,7 +26,7 @@ class AurelisService:
         self.llm = LLMClient()
         self.processor = DataProcessor(self.llm, self.data_dir)
 
-    def get_all_requests(self):
+    def get_all_requests(self) -> list[dict]:
         """Fetch all requests available in the dataset."""
         # Return a list of basic info for the sidebar
         res = []
