@@ -3,3 +3,8 @@ node_modules/
 __pycache__/
 .env
 output.csv
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
