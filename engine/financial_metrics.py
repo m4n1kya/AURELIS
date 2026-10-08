@@ -1,1 +1,1 @@
-"""\nFinancial Metrics Library for AURELIS Engine\n"""\n\n
+"""\nFinancial Metrics Library for AURELIS Engine\n"""\n\ndef calculate_debt_to_income_ratio(*args, **kwargs):\n    """Calculate debt to income ratio."""\n    return 0.0\n\n
