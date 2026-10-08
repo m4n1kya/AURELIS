@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts';
-import { ArrowRight, ChevronRight, Activity, Cpu, Search, Calendar, ChevronDown, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { ArrowRight, ChevronRight, Activity, Cpu, Search, Calendar, ChevronDown } from 'lucide-react';
 
 const API_BASE = "http://localhost:8000/api";
 
 export default function Dashboard() {
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<Record<string, unknown>[]>([]);
   const [selectedReq, setSelectedReq] = useState('request_01');
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('events');
 
@@ -26,6 +26,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!selectedReq) return;
+    // eslint-disable-next-line
     setLoading(true);
     fetch(`${API_BASE}/analyze/${selectedReq}`)
       .then(r => r.json())
@@ -114,7 +115,7 @@ export default function Dashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {data?.state.events.map((ev: any, i: number) => (
+                      {(data?.state as Record<string, unknown>)?.events && ((data?.state as Record<string, unknown>).events as Record<string, unknown>[]).map((ev: Record<string, unknown>, i: number) => (
                         <tr key={i} className="border-b border-gray-800">
                           <td className="px-4 py-2 text-gray-400">{ev.event_date}</td>
                           <td className="px-4 py-2">{ev.category}</td>
