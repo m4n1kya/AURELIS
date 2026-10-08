@@ -2,22 +2,53 @@
 
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts';
-import { ArrowRight, ChevronRight, Activity, Cpu, Search, Calendar, ChevronDown } from 'lucide-react';
+import { ChevronRight, Activity } from 'lucide-react';
 
 const API_BASE = "http://localhost:8000/api";
 
+interface AurelisEvent {
+  event_date: string;
+  category: string;
+  description: string;
+  amount: number;
+  direction: 'debit' | 'credit';
+}
+
+interface TimelinePoint {
+  date: string;
+  net: number;
+}
+
+interface Decision {
+  affordability_status: string;
+  amount_safe_to_pay: number;
+  recommended_payment_method: string;
+}
+
+interface AnalysisData {
+  decision: Decision;
+  state: {
+    events: AurelisEvent[];
+  };
+  timeline: TimelinePoint[];
+}
+
+interface RequestMeta {
+  request_id: string;
+}
+
 export default function Dashboard() {
-  const [requests, setRequests] = useState<Record<string, unknown>[]>([]);
+  const [requests, setRequests] = useState<RequestMeta[]>([]);
   const [selectedReq, setSelectedReq] = useState('request_01');
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<AnalysisData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('events');
 
   useEffect(() => {
     fetch(`${API_BASE}/requests`)
       .then(r => r.json())
-      .then(d => {
-        if(d.length > 0) {
+      .then((d: RequestMeta[]) => {
+        if (d.length > 0) {
           setRequests(d);
           setSelectedReq(d[0].request_id);
         }
@@ -26,18 +57,23 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!selectedReq) return;
-    // eslint-disable-next-line
-    setLoading(true);
-    fetch(`${API_BASE}/analyze/${selectedReq}`)
-      .then(r => r.json())
-      .then(d => {
-        setData(d);
-        setLoading(false);
-      })
-      .catch(e => {
+    let cancelled = false;
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const r = await fetch(`${API_BASE}/analyze/${selectedReq}`);
+        const d: AnalysisData = await r.json();
+        if (!cancelled) {
+          setData(d);
+          setLoading(false);
+        }
+      } catch (e) {
         console.error(e);
-        setLoading(false);
-      });
+        if (!cancelled) setLoading(false);
+      }
+    };
+    fetchData();
+    return () => { cancelled = true; };
   }, [selectedReq]);
 
   if (!data && loading) {
@@ -52,8 +88,8 @@ export default function Dashboard() {
   };
 
   const statusColor = data ? statusMap[data.decision.affordability_status] || 'var(--status-safe)' : 'var(--status-safe)';
-  const formattedStatus = data?.decision.affordability_status.replace(/_/g, ' ').toUpperCase() || '';
-  
+  const formattedStatus = data?.decision.affordability_status.replace(/_/g, ' ').toUpperCase() ?? '';
+
   return (
     <div className="flex h-screen bg-black text-white font-mono overflow-hidden">
       <div className="w-64 border-r border-gray-800 flex flex-col">
@@ -64,7 +100,7 @@ export default function Dashboard() {
         <div className="p-2 flex-1 overflow-y-auto">
           <div className="text-xs text-gray-500 mb-2 px-2 uppercase">Requests</div>
           {requests.map(r => (
-            <div 
+            <div
               key={r.request_id}
               onClick={() => setSelectedReq(r.request_id)}
               className={`p-2 text-sm cursor-pointer hover:bg-gray-900 rounded flex justify-between items-center ${selectedReq === r.request_id ? 'bg-gray-900 text-[var(--accent-primary)]' : ''}`}
@@ -75,12 +111,12 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
-      
+
       <div className="flex-1 flex flex-col h-screen overflow-y-auto relative">
         <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: statusColor }} />
         <div className="p-8">
           <h1 className="text-3xl font-bold mb-8">Analysis: {selectedReq}</h1>
-          
+
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="p-4 border border-gray-800 rounded bg-gray-900/50">
               <div className="text-xs text-gray-500 uppercase">Status</div>
@@ -95,13 +131,13 @@ export default function Dashboard() {
               <div className="text-xl font-bold mt-1 text-white">{data?.decision.recommended_payment_method.replace(/_/g, ' ').toUpperCase()}</div>
             </div>
           </div>
-          
+
           <div className="mb-8 border border-gray-800 rounded overflow-hidden">
             <div className="bg-gray-900 p-2 flex gap-4 text-sm border-b border-gray-800">
               <button className={`px-4 py-1 rounded ${activeTab === 'events' ? 'bg-gray-800 text-white' : 'text-gray-400'}`} onClick={() => setActiveTab('events')}>Events</button>
               <button className={`px-4 py-1 rounded ${activeTab === 'timeline' ? 'bg-gray-800 text-white' : 'text-gray-400'}`} onClick={() => setActiveTab('timeline')}>Timeline</button>
             </div>
-            
+
             <div className="p-4 h-96">
               {activeTab === 'events' && (
                 <div className="overflow-y-auto h-full">
@@ -115,7 +151,7 @@ export default function Dashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {(data?.state as Record<string, unknown>)?.events && ((data?.state as Record<string, unknown>).events as Record<string, unknown>[]).map((ev: Record<string, unknown>, i: number) => (
+                      {data?.state.events.map((ev: AurelisEvent, i: number) => (
                         <tr key={i} className="border-b border-gray-800">
                           <td className="px-4 py-2 text-gray-400">{ev.event_date}</td>
                           <td className="px-4 py-2">{ev.category}</td>
@@ -129,10 +165,10 @@ export default function Dashboard() {
                   </table>
                 </div>
               )}
-              
+
               {activeTab === 'timeline' && (
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data?.timeline || []} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <LineChart data={data?.timeline ?? []} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                     <XAxis dataKey="date" stroke="#666" tick={{fontSize: 10}} />
                     <YAxis stroke="#666" tick={{fontSize: 10}} />
