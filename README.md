@@ -1,116 +1,181 @@
 <div align="center">
   <h1>AURELIS</h1>
-  <p><b>Privacy-First AI Financial Intelligence & Affordability Agent</b></p>
-  <p><img src="https://github.com/m4n1kya/AURELIS/actions/workflows/python-app.yml/badge.svg" alt="Python CI"> <img src="https://github.com/m4n1kya/AURELIS/actions/workflows/nextjs.yml/badge.svg" alt="Next.js CI"></p>
-  
+  <p><b>Deterministic Financial Affordability & Cash-Flow Intelligence Engine</b></p>
+
   <p>
-    <a href="https://github.com/m4n1kya/AURELIS/commits/main"><img src="https://img.shields.io/github/last-commit/m4n1kya/AURELIS?style=flat-square&color=4BB8FA" alt="Last Commit"></a>
-    <a href="https://github.com/m4n1kya/AURELIS/issues"><img src="https://img.shields.io/github/issues/m4n1kya/AURELIS?style=flat-square&color=C4E2F5" alt="Issues"></a>
-    <a href="https://github.com/m4n1kya/AURELIS/blob/main/LICENSE"><img src="https://img.shields.io/github/license/m4n1kya/AURELIS?style=flat-square&color=4BB8FA" alt="License"></a>
+    <a href="https://github.com/m4n1kya/AURELIS/actions/workflows/python-app.yml"><img src="https://img.shields.io/github/actions/workflow/status/m4n1kya/AURELIS/python-app.yml?branch=main&style=flat-square&label=Engine%20CI&color=4BB8FA" alt="Engine CI"></a>
+    <a href="https://github.com/m4n1kya/AURELIS/actions/workflows/nextjs.yml"><img src="https://img.shields.io/github/actions/workflow/status/m4n1kya/AURELIS/nextjs.yml?branch=main&style=flat-square&label=Dashboard%20CI&color=4BB8FA" alt="Dashboard CI"></a>
+    <img src="https://img.shields.io/badge/python-3.10%2B-4BB8FA?style=flat-square" alt="Python 3.10+">
+    <img src="https://img.shields.io/badge/next.js-16.3-000000?style=flat-square" alt="Next.js 16.3">
+    <a href="https://github.com/m4n1kya/AURELIS/blob/main/LICENSE"><img src="https://img.shields.io/github/license/m4n1kya/AURELIS?style=flat-square&color=6b9e78" alt="License"></a>
   </p>
 </div>
 
 ---
 
-AURELIS is an advanced, privacy-first AI financial agent that deterministically evaluates your affordability and builds optimized payment plans based on your true cash flow, upcoming liabilities, and required minimum reserves.
+**AURELIS** is a privacy-first financial decision engine and interactive command center that evaluates purchase affordability, models 90-day daily cash-flow trajectories, and synthesizes optimal payment plans without ever breaching required liquidity reserves.
 
-Unlike static budgeting apps, AURELIS analyzes your 90-day cash flow projection—inclusive of expected bills, currency conversions, and LLM-extracted unstructured evidence—to tell you exactly how much you can afford *right now* and how to finance the rest safely.
+Unlike static budgeting trackers, AURELIS combines a **strict deterministic simulation core** with **multimodal AI evidence extraction**—reconciling multi-currency ledger events, recurring obligations, receipt images, and unstructured financial messages into verifiable affordability decisions.
 
-## ✨ Features
+---
 
-- **Deterministic Financial Engine**: Built on a highly strict cash-flow simulation engine that guarantees you never drop below your absolute minimum reserve.
-- **Multimodal Evidence Processing**: Uses Google Gemini to extract verifiable financial constraints from unstructured messages and receipts, falling back to safe defaults if API limits are hit.
-- **Dynamic Payment Planning**: Autonomously ranks and schedules optimal payment plans if an item isn't affordable upfront.
-- **Premium Fintech Dashboard**: A high-end Next.js UI built for visualizing your 90-day financial forecast and exploring engine decisions in real time.
+## Key Capabilities
 
-## 🏗️ Architecture
+- **90-Day Deterministic Liquidity Simulation**: Projects daily net cash flows across a 90-day forward window, automatically inferring weekly and monthly recurring obligations while preventing duplicate ledger entries.
+- **Multimodal Evidence Extraction**: Parses unstructured financial notifications and receipt imagery via Google Gemini with SHA-256 content-addressable caching and deterministic offline fallback.
+- **Multi-Currency Spot Normalization**: Converts foreign-denominated debits and credits (`EUR`, `IDR`, `JPY`, `CHF`, `PLN`, `USD`) into the user's home currency using settlement-date spot rates.
+- **Quantitative Financial Metrics Suite**: Includes 50+ standardized financial health calculators (DTI, liquidity ratios, Altman Z-Score, DuPont ROE, IRR, MIRR, NPV).
+- **Real-Time Financial Command Center**: High-contrast Next.js dashboard for inspecting request decisions, event ledgers, and 90-day cash-flow trajectories.
 
-AURELIS is built with a strictly separated architecture to ensure the core financial engine remains unpolluted by presentation logic.
+---
+
+## System Architecture
 
 ```mermaid
-graph TD
-    subgraph Client
-        F[Frontend Dashboard<br/>Next.js / React]
+flowchart LR
+    subgraph Client["Presentation Layer"]
+        UI["Next.js 16 Dashboard\n(React 19 / Recharts)"]
     end
 
-    subgraph Server
-        A[API Bridge<br/>FastAPI]
-        E[Financial Engine<br/>Python]
+    subgraph Service["API Service Layer"]
+        API["FastAPI Bridge\n(/api/requests, /api/analyze)"]
     end
 
-    subgraph Data
-        D[(Local Data Lake<br/>CSVs)]
-        L[Google Gemini API]
+    subgraph Core["Deterministic Engine (engine/)"]
+        EVAL["Affordability Evaluator"]
+        STATE["90-Day Cash-Flow Simulator"]
+        FX["Spot FX Manager"]
+        PROC["Multimodal Data Processor"]
     end
 
-    F <-->|REST / JSON| A
-    A -->|Direct Invocation| E
-    E -->|Read| D
-    E <-->|Extract Evidence| L
+    subgraph Storage["Data & AI Providers"]
+        DATA[("Local Ledger CSVs\n& Receipt Media")]
+        LLM["Google Gemini API\n+ SHA-256 Cache"]
+    end
+
+    UI <-->|"REST / JSON"| API
+    API --> EVAL
+    EVAL --> STATE
+    STATE --> FX
+    API --> PROC
+    STATE --> DATA
+    PROC <--> LLM
 ```
 
-- **`engine/`**: The core deterministic Python financial engine. Operates entirely independently without any web server dependencies.
-- **`api/`**: A lightweight FastAPI bridge that securely wraps the deterministic engine to serve JSON payloads to the frontend.
-- **`frontend/`**: An ultra-premium React dashboard built with Tailwind CSS, Framer Motion, and Recharts.
-- **`dataset/`**: Local CSV-based data lake acting as your private financial history and requests ledger.
+For mathematical formulations and recurrence deduction rules, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-## 🚀 Getting Started
+---
+
+## Repository Structure
+
+```text
+AURELIS/
+├── api/                  # FastAPI REST service & engine orchestration bridge
+│   ├── aurelis_service.py
+│   └── main.py
+├── dataset/              # Financial profiles, events, FX rates, and receipt media
+├── docker/               # Production container definitions for API and Frontend
+├── docs/                 # Technical architecture & algorithmic specifications
+├── engine/               # Pure-Python deterministic financial simulation core
+│   ├── data_processor.py
+│   ├── evaluator.py
+│   ├── exceptions.py
+│   ├── exchange_rates.py
+│   ├── finance.py
+│   ├── financial_metrics.py
+│   ├── llm_client.py
+│   └── run_production.py
+├── frontend/             # Next.js 16 real-time financial intelligence dashboard
+├── tests/                # Automated pytest unit & API integration suite
+├── utils/                # Shared currency & formatting utilities
+├── Makefile              # Developer workflow automation
+├── docker-compose.yml    # Full-stack container orchestration
+├── pyproject.toml        # Python package metadata, pytest, and linter config
+└── requirements.txt      # Core Python dependencies
+```
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
-- **Python**: `3.10+`
-- **Node.js**: `18+` (for the dashboard)
-- **API Key**: Google Gemini API Key
+- **Python** `3.10+`
+- **Node.js** `20+` & `npm`
+- **Google Gemini API Key** *(optional — offline deterministic cache included)*
 
-### 1. Clone the Repository
+### 1. Clone & Configure
 
 ```bash
 git clone https://github.com/m4n1kya/AURELIS.git
 cd AURELIS
-```
-
-### 2. Environment Setup
-
-Copy the example environment file and configure your API key:
-
-```bash
 cp .env.example .env
 ```
-Add your Google Gemini API key to the `.env` file.
 
-### 3. Backend Setup (Engine & API)
-
-Install the required Python dependencies:
+### 2. Start the Backend API
 
 ```bash
 pip install -r requirements.txt
+python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Start the FastAPI backend server:
+The API service will be live at `http://localhost:8000` (interactive OpenAPI docs at `http://localhost:8000/docs`).
 
-```bash
-python -m uvicorn api.main:app --port 8000 --reload
-```
-*The API will be available at `http://localhost:8000`*
+### 3. Start the Frontend Dashboard
 
-*(Alternatively, you can run the core engine purely in the CLI for batch processing by executing `python engine/main.py`)*
-
-### 4. Frontend Setup
-
-In a new terminal window, initialize and run the Next.js application:
+In a separate terminal:
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
-Navigate to `http://localhost:3000` to access your AURELIS command center.
-
-## 🛡️ License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
+Open `http://localhost:3000` in your browser.
 
 ---
-*Built with precision and robust engineering.*
+
+## CLI Batch Execution & Docker
+
+### Run Standalone Batch Evaluation
+The core engine operates independently of any web server and can evaluate the entire dataset in batch mode:
+
+```bash
+python engine/run_production.py
+```
+
+### Run with Docker Compose
+
+```bash
+docker compose up --build
+```
+
+---
+
+## Testing & Quality Assurance
+
+Run the automated Python test suite and frontend linter:
+
+```bash
+# Run unit and API integration tests
+pytest tests/ -v
+
+# Run Next.js ESLint checks
+cd frontend && npm run lint
+```
+
+---
+
+## API Reference
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/health` | Health check and engine status verification |
+| `GET` | `/api/requests` | Retrieve all financial requests and baseline metadata |
+| `GET` | `/api/analyze/{request_id}` | Execute deterministic 90-day evaluation for a specific request |
+
+---
+
+## License
+
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for full details.
