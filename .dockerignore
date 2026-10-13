@@ -1,4 +1,11 @@
-node_modules/
-__pycache__/
-.env
 .git
+.github
+.vscode
+.idea
+__pycache__
+.pytest_cache
+frontend/node_modules
+frontend/.next
+.env
+*.md
+tests
