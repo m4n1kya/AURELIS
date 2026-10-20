@@ -12,10 +12,13 @@ from engine.financial_metrics import (
     calculate_asset_turnover_ratio,
     calculate_cash_conversion_cycle,
     calculate_cash_ratio,
+    calculate_cash_runway_months,
     calculate_compound_annual_growth_rate,
     calculate_current_ratio,
+    calculate_debt_service_coverage_ratio,
     calculate_debt_to_equity_ratio,
     calculate_debt_to_income_ratio,
+    calculate_discretionary_spending_ratio,
     calculate_dupont_analysis,
     calculate_emergency_fund_ratio,
     calculate_future_value,
@@ -24,6 +27,7 @@ from engine.financial_metrics import (
     calculate_internal_rate_of_return,
     calculate_liquidity_ratio,
     calculate_margin_of_safety,
+    calculate_net_burn_rate,
     calculate_net_present_value,
     calculate_net_profit_margin,
     calculate_net_worth,
@@ -35,6 +39,7 @@ from engine.financial_metrics import (
     calculate_return_on_assets,
     calculate_return_on_equity,
     calculate_return_on_investment,
+    calculate_rule_of_72,
     calculate_savings_rate,
     calculate_solvency_ratio,
 )
@@ -117,3 +122,42 @@ class TestValuationAndCashFlow:
         )
         # 1.2*0.2 + 1.4*0.3 + 3.3*0.15 + 0.6*0.8 + 1.0*1.2 = 0.24 + 0.42 + 0.495 + 0.48 + 1.2 = 2.835
         assert pytest.approx(z) == 2.835
+
+
+class TestPersonalCashFlowAndRunwayMetrics:
+    def test_net_burn_rate(self):
+        # Inflows 3000, Outflows 4500 -> Burn rate 1500
+        assert calculate_net_burn_rate(cash_inflows=3000.0, cash_outflows=4500.0) == 1500.0
+        # Positive cash flow: Inflows 5000, Outflows 3000 -> Burn rate 0
+        assert calculate_net_burn_rate(cash_inflows=5000.0, cash_outflows=3000.0) == 0.0
+        # Flat cash flow
+        assert calculate_net_burn_rate(cash_inflows=2000.0, cash_outflows=2000.0) == 0.0
+
+    def test_cash_runway_months(self):
+        # 12000 liquid reserves with 2000 monthly burn -> 6 months runway
+        assert calculate_cash_runway_months(current_liquid_reserves=12000.0, monthly_burn_rate=2000.0) == 6.0
+        # 0 or negative burn rate (positive cash flow) -> infinite runway
+        assert calculate_cash_runway_months(current_liquid_reserves=10000.0, monthly_burn_rate=0.0) == float("inf")
+        assert calculate_cash_runway_months(current_liquid_reserves=10000.0, monthly_burn_rate=-500.0) == float("inf")
+
+    def test_debt_service_coverage_ratio(self):
+        # 6000 net operating income, 2000 debt service -> DSCR 3.0
+        assert calculate_debt_service_coverage_ratio(net_operating_income=6000.0, total_debt_service=2000.0) == 3.0
+        # Zero debt service guard
+        assert calculate_debt_service_coverage_ratio(net_operating_income=6000.0, total_debt_service=0.0) == 0.0
+
+    def test_discretionary_spending_ratio(self):
+        # 800 discretionary out of 4000 total expenditures -> 0.20
+        assert calculate_discretionary_spending_ratio(discretionary_expenses=800.0, total_expenses=4000.0) == 0.2
+        # Zero total expenditures guard
+        assert calculate_discretionary_spending_ratio(discretionary_expenses=500.0, total_expenses=0.0) == 0.0
+
+    def test_rule_of_72(self):
+        # At 8% annual return, capital doubles in ~9 years
+        assert calculate_rule_of_72(annual_rate_of_return=8.0) == 9.0
+        # At 6% return, ~12 years
+        assert calculate_rule_of_72(annual_rate_of_return=6.0) == 12.0
+        # Zero / negative return guard
+        assert calculate_rule_of_72(annual_rate_of_return=0.0) == 0.0
+        assert calculate_rule_of_72(annual_rate_of_return=-4.0) == 0.0
+

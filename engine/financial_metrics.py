@@ -316,3 +316,36 @@ def calculate_altman_z_score(
         + 0.6 * market_value_equity_to_liabilities
         + 1.0 * sales_to_assets
     )
+
+
+def calculate_net_burn_rate(cash_inflows: float = 0.0, cash_outflows: float = 0.0, *args, **kwargs) -> float:
+    """Calculate net cash burn rate (outflows minus inflows). Returns 0.0 if cash flow is flat or positive."""
+    net_burn = float(cash_outflows) - float(cash_inflows)
+    return max(0.0, net_burn)
+
+
+def calculate_cash_runway_months(current_liquid_reserves: float = 0.0, monthly_burn_rate: float = 1.0, *args, **kwargs) -> float:
+    """
+    Calculate cash runway in months given current liquid reserves and monthly net burn rate.
+    Returns float('inf') if monthly burn rate is zero or negative (sustainable cash flow).
+    """
+    if monthly_burn_rate <= 0:
+        return float("inf")
+    return _safe_divide(current_liquid_reserves, monthly_burn_rate)
+
+
+def calculate_debt_service_coverage_ratio(net_operating_income: float = 0.0, total_debt_service: float = 1.0, *args, **kwargs) -> float:
+    """Calculate Debt Service Coverage Ratio (DSCR)."""
+    return _safe_divide(net_operating_income, total_debt_service)
+
+
+def calculate_discretionary_spending_ratio(discretionary_expenses: float = 0.0, total_expenses: float = 1.0, *args, **kwargs) -> float:
+    """Calculate the proportion of discretionary expenses relative to total expenditures."""
+    return _safe_divide(discretionary_expenses, total_expenses)
+
+
+def calculate_rule_of_72(annual_rate_of_return: float = 0.0, *args, **kwargs) -> float:
+    """Estimate the number of years required to double an investment given an annual rate percentage (e.g. 6.0 for 6%)."""
+    if annual_rate_of_return <= 0:
+        return 0.0
+    return 72.0 / float(annual_rate_of_return)
