@@ -9,6 +9,15 @@ from exchange_rates import ExchangeRateManager
 from evaluator import Evaluator
 from data_processor import DataProcessor
 from llm_client import LLMClient
+from financial_metrics import (
+    calculate_cash_runway_months,
+    calculate_debt_to_income_ratio,
+    calculate_discretionary_spending_ratio,
+    calculate_emergency_fund_ratio,
+    calculate_liquidity_ratio,
+    calculate_margin_of_safety,
+    calculate_net_burn_rate,
+)
 
 class AurelisService:
     """Core service orchestrating data retrieval and engine evaluation."""
@@ -178,6 +187,19 @@ class AurelisService:
                 "earliest_date_for_full_payment": decision['earliest_date_for_full_payment']
             },
             "forecast": forecast_data,
+            "timeline": forecast_data,
+            "state": {
+                "events": [
+                    {
+                        "event_date": ev.event_date.strftime("%Y-%m-%d") if hasattr(ev.event_date, "strftime") else str(ev.event_date),
+                        "category": ev.category or "General",
+                        "description": ev.description or "",
+                        "amount": float(ev.get_home_amount()),
+                        "direction": ev.direction or "debit",
+                    }
+                    for ev in state.events
+                ]
+            },
             "chart_markers": {
                 "income": income_pts,
                 "expenses": expense_pts
@@ -186,3 +208,74 @@ class AurelisService:
             "payment_timeline": plan_timeline,
             "evidence": evidence_log
         }
+
+    def get_metrics(self, req_id: str) -> dict:
+        """Compute quantitative financial health metrics for the user of the specified request."""
+        req_rows = self.requests_df[self.requests_df["request_id"] == req_id]
+        if req_rows.empty:
+            raise ValueError(f"Request {req_id} not found.")
+
+        req_row = req_rows.iloc[0]
+        user_id = req_row["user_id"]
+        prof_row = self.profiles_df[self.profiles_df["user_id"] == user_id].iloc[0]
+        user_events = self.events_df[self.events_df["user_id"] == user_id]
+
+        home_curr = prof_row["home_currency"]
+        curr_bal = float(prof_row["current_available_balance"])
+        min_reserve = float(prof_row.get("minimum_balance_to_keep", 0.0))
+
+        # Calculate monthly cash flows from user events
+        monthly_income = 0.0
+        monthly_expenses = 0.0
+        discretionary_expenses = 0.0
+        debt_payments = 0.0
+
+        for _, r in user_events.iterrows():
+            amt = r.get("amount")
+            if pd.isnull(amt) or amt == "":
+                continue
+            amt = float(amt)
+            cur = r.get("currency", home_curr)
+            if cur != home_curr:
+                date_str = str(r.get("settlement_date") or r.get("event_date") or "2024-01-01")[:10]
+                amt = self.exchange_mgr.convert(amt, date_str, cur, home_curr)
+
+            direction = r.get("direction")
+            cat = str(r.get("category", "")).lower()
+            flex = str(r.get("flexibility", "")).lower()
+
+            if direction == "credit":
+                monthly_income += amt
+            elif direction == "debit":
+                monthly_expenses += amt
+                if flex == "flexible" or any(k in cat for k in ["dining", "entertainment", "shopping", "leisure"]):
+                    discretionary_expenses += amt
+                if any(k in cat for k in ["loan", "debt", "mortgage", "credit"]):
+                    debt_payments += amt
+
+        # Compute standardized indicators
+        liquidity = calculate_liquidity_ratio(curr_bal, monthly_expenses if monthly_expenses > 0 else 1.0)
+        emergency_fund = calculate_emergency_fund_ratio(curr_bal, monthly_expenses if monthly_expenses > 0 else 1.0)
+        safety_margin = calculate_margin_of_safety(curr_bal, min_reserve)
+        disc_ratio = calculate_discretionary_spending_ratio(discretionary_expenses, monthly_expenses)
+        burn_rate = calculate_net_burn_rate(monthly_income, monthly_expenses)
+        runway_months = calculate_cash_runway_months(curr_bal, burn_rate)
+        dti = calculate_debt_to_income_ratio(debt_payments, monthly_income if monthly_income > 0 else 1.0)
+
+        return {
+            "request_id": req_id,
+            "user_id": user_id,
+            "home_currency": home_curr,
+            "current_balance": curr_bal,
+            "minimum_reserve": min_reserve,
+            "metrics": {
+                "liquidity_ratio": round(liquidity, 4),
+                "emergency_fund_ratio_months": round(emergency_fund, 2),
+                "margin_of_safety": round(safety_margin, 4),
+                "discretionary_spending_ratio": round(disc_ratio, 4),
+                "monthly_net_burn_rate": round(burn_rate, 2),
+                "cash_runway_months": "infinite" if runway_months == float("inf") else round(runway_months, 2),
+                "debt_to_income_ratio": round(dti, 4),
+            },
+        }
+

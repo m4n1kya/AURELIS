@@ -80,3 +80,15 @@ def analyze_request(request_id: str = Path(..., title="The ID of the request to 
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/metrics/{request_id}")
+def get_request_metrics(request_id: str = Path(..., title="The ID of the request to evaluate metrics for")) -> Dict[str, Any]:
+    """Computes quantitative financial health indicators for a specific request's profile."""
+    try:
+        return service.get_metrics(request_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

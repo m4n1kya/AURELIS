@@ -33,7 +33,7 @@ def test_list_requests():
 
 
 def test_analyze_valid_request():
-    """Verify 90-day evaluation output structure for a valid request ID."""
+    """Verify 90-day evaluation output structure and frontend contract for a valid request ID."""
     reqs_resp = client.get("/api/requests")
     assert reqs_resp.status_code == 200
     first_req_id = reqs_resp.json()[0]["request_id"]
@@ -43,6 +43,15 @@ def test_analyze_valid_request():
     payload = response.json()
     assert "decision" in payload
     assert "forecast" in payload
+    assert "timeline" in payload
+    assert "state" in payload
+    assert "events" in payload["state"]
+    assert len(payload["state"]["events"]) > 0
+    first_ev = payload["state"]["events"][0]
+    assert "event_date" in first_ev
+    assert "category" in first_ev
+    assert "amount" in first_ev
+    assert "direction" in first_ev
     assert "spending_changes" in payload
     assert "meta" in payload
     assert payload["meta"]["request_id"] == first_req_id
@@ -53,3 +62,31 @@ def test_analyze_nonexistent_request():
     response = client.get("/api/analyze/nonexistent_request_999")
     assert response.status_code == 404
     assert "not found" in response.json()["detail"].lower()
+
+
+def test_metrics_valid_request():
+    """Verify financial health indicators retrieval for a valid request ID."""
+    reqs_resp = client.get("/api/requests")
+    assert reqs_resp.status_code == 200
+    first_req_id = reqs_resp.json()[0]["request_id"]
+
+    response = client.get(f"/api/metrics/{first_req_id}")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["request_id"] == first_req_id
+    assert "metrics" in payload
+    metrics = payload["metrics"]
+    assert "liquidity_ratio" in metrics
+    assert "emergency_fund_ratio_months" in metrics
+    assert "margin_of_safety" in metrics
+    assert "discretionary_spending_ratio" in metrics
+    assert "cash_runway_months" in metrics
+    assert "debt_to_income_ratio" in metrics
+
+
+def test_metrics_nonexistent_request():
+    """Verify 404 HTTP status for metrics on nonexistent request ID."""
+    response = client.get("/api/metrics/nonexistent_request_999")
+    assert response.status_code == 404
+    assert "not found" in response.json()["detail"].lower()
+
