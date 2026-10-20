@@ -24,7 +24,7 @@ Unlike static budgeting trackers, AURELIS combines a **strict deterministic simu
 - **90-Day Deterministic Liquidity Simulation**: Projects daily net cash flows across a 90-day forward window, automatically inferring weekly and monthly recurring obligations while preventing duplicate ledger entries.
 - **Multimodal Evidence Extraction**: Parses unstructured financial notifications and receipt imagery via Google Gemini with SHA-256 content-addressable caching and deterministic offline fallback.
 - **Multi-Currency Spot Normalization**: Converts foreign-denominated debits and credits (`EUR`, `IDR`, `JPY`, `CHF`, `PLN`, `USD`) into the user's home currency using settlement-date spot rates.
-- **Quantitative Financial Metrics Suite**: Includes 50+ standardized financial health calculators (DTI, liquidity ratios, Altman Z-Score, DuPont ROE, IRR, MIRR, NPV).
+- **Quantitative Financial Metrics Suite**: Includes 55+ standardized financial health calculators (cash runway, net burn rate, DSCR, DTI, liquidity ratios, Altman Z-Score, DuPont ROE, IRR, MIRR, NPV).
 - **Real-Time Financial Command Center**: High-contrast Next.js dashboard for inspecting request decisions, event ledgers, and 90-day cash-flow trajectories.
 
 ---
@@ -38,7 +38,7 @@ flowchart LR
     end
 
     subgraph Service["API Service Layer"]
-        API["FastAPI Bridge\n(/api/requests, /api/analyze)"]
+        API["FastAPI Bridge\n(/api/requests, /api/analyze, /api/metrics)"]
     end
 
     subgraph Core["Deterministic Engine (engine/)"]
@@ -173,6 +173,7 @@ cd frontend && npm run lint
 | `GET` | `/api/health` | Health check and engine status verification |
 | `GET` | `/api/requests` | Retrieve all financial requests and baseline metadata |
 | `GET` | `/api/analyze/{request_id}` | Execute deterministic 90-day evaluation for a specific request |
+| `GET` | `/api/metrics/{request_id}` | Compute quantitative financial health, liquidity, and runway indicators |
 
 ---
 

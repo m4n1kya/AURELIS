@@ -39,4 +39,23 @@ $$\forall k \in \{0, \dots, 90\}: \quad b_k - \sum_{d_j \le t_k} a_j \ge M_{\min
 | :--- | :--- | :--- |
 | `GET` | `/api/health` | Returns service health and engine mode (`{"status": "ok", "engine": "deterministic"}`). |
 | `GET` | `/api/requests` | Lists all available financial evaluation requests with user and amount metadata. |
-| `GET` | `/api/analyze/{request_id}` | Executes the 90-day deterministic simulation for `request_id` and returns the decision, daily forecast, chart markers, and evidence audit log. |
+| `GET` | `/api/analyze/{request_id}` | Executes the 90-day deterministic simulation for `request_id` and returns the decision, daily forecast, chart markers, state events, and evidence audit log. |
+| `GET` | `/api/metrics/{request_id}` | Computes standardized financial health indicators (liquidity ratio, emergency fund ratio, margin of safety, discretionary spending ratio, burn rate, runway, DTI). |
+
+---
+
+## 5. Quantitative Health & Liquidity Indicators
+
+To provide deeper context alongside deterministic affordability simulations, AURELIS evaluates key solvency and runway metrics:
+
+- **Liquidity Coverage Ratio**:
+  $$\text{LCR} = \frac{\text{Current Available Balance}}{\text{Monthly Obligations}}$$
+- **Emergency Reserve Coverage (Months)**:
+  $$\text{ERC} = \frac{\text{Current Available Balance}}{\text{Monthly Essential Expenses}}$$
+- **Margin of Safety**:
+  $$\text{MoS} = \frac{\text{Current Balance} - M_{\min}}{\text{Current Balance}}$$
+- **Net Burn Rate**:
+  $$\text{BR}_{\text{net}} = \max(0, \text{Monthly Outflows} - \text{Monthly Inflows})$$
+- **Cash Runway (Months)**:
+  $$\text{Runway} = \begin{cases} \infty & \text{if } \text{BR}_{\text{net}} \le 0 \\ \frac{\text{Liquid Reserves}}{\text{BR}_{\text{net}}} & \text{if } \text{BR}_{\text{net}} > 0 \end{cases}$$
+
